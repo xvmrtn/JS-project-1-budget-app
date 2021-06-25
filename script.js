@@ -54,12 +54,17 @@ function addTransactionDOM(transaction) {
   // Add class based on value
   item.classList.add(transaction.amount < 0 ? 'minus' : 'plus');
 
+  item.setAttribute("tid", transaction.id);
+
   item.innerHTML = `
-    ${transaction.text} <span>${sign}${Math.abs(
+    <span contenteditable="true" class="singleTText">${transaction.text}</span> <span contenteditable="true" class="singleTAmount">${sign}${Math.abs(
     transaction.amount
   )}</span> <button class="delete-btn" onclick="removeTransaction(${
     transaction.id
   })">x</button>
+  <button class="edit-btn" onclick="editTransaction(${
+    transaction.id
+  })">save</button>
   `;
 
   list.appendChild(item);
@@ -89,6 +94,32 @@ function updateValues() {
 // Remove transaction by ID
 function removeTransaction(id) {
   transactions = transactions.filter(transaction => transaction.id !== id);
+
+  updateLocalStorage();
+
+  init();
+}
+
+// Edit transaction by ID
+function editTransaction(id) {
+  let editedRow = document.querySelectorAll('[tid="' + id + '"]');
+  let editedRowText = editedRow[0].querySelectorAll(".singleTText")[0].textContent;
+  let editedRowAmount = parseInt(editedRow[0].querySelectorAll(".singleTAmount")[0].textContent);
+
+  transactions.forEach(function(singleTransaction) {
+     if(singleTransaction.id === id) {
+      if(editedRowText != singleTransaction.text) {
+        singleTransaction.text = editedRowText;
+      }
+      if(editedRowAmount != singleTransaction.amount) {
+        singleTransaction.amount = editedRowAmount;
+      }
+     }
+  });
+
+  console.log("edited!");
+
+  updateValues();
 
   updateLocalStorage();
 
